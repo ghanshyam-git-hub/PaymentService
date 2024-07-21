@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<form>
+    <div class="mb-3">
+        <label for="myname" class="form-label">Name</label>
+        <input type="text" class="form-control" id="myname">
+    </div>
+    <div class="mb-3">
+        <label for="mobile" class="form-label">Mobile</label>
+        <input type="text" class="form-control" id="mobile">
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" autocomplete="on">
+    </div>
+    <div class="mb-3">
+        <label for="addressline1" class="form-label">Address1(Houseno,Building name,Society)</label>
+        <input type="text" class="form-control" id="addressline1">
+    </div>
+    <div class="mb-3">
+        <label for="addressline2" class="form-label">Address2(Area,Road)</label>
+        <input type="text" class="form-control" id="addressline2">
+    </div>
+    <div class="mb-3">
+        <label for="landmark" class="form-label">Landmark</label>
+        <input type="text" class="form-control" id="landmark">
+    </div>
+    <div class="mb-3">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city">
+    </div>
+    <div class="mb-3">
+        <label for="pincode" class="form-label">Pincode</label>
+        <input type="text" class="form-control" id="pincode">
+    </div>
+    <div class="mb-3">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" id="state">
+    </div>
+    <div class="mb-3">
+        <label for="country" class="form-label">Country</label>
+        <input type="text" class="form-control" id="country" autocomplete="on">
+    </div>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Amount</label>
+        <input type="text" class="form-control" id="amount">
+    </div>
+    <button type="submit" class="btn btn-primary" id = "mysubmit">Submit</button>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        async function createOrder(){
+            console.log('order creation started');
+            const response = await fetch('http://localhost:9090/order' ,  {
+                method : 'POST',
+                headers : {
+                    'Content-Type':'application/json'
+                },
+                body : JSON.stringify({
+                    name : document.getElementById('myname').value,
+                    mobile : document.getElementById('mobile').value,
+                    email : document.getElementById('email').value,
+                    addressline1 : document.getElementById('addressline1').value,
+                    addressline2 : document.getElementById('addressline2').value,
+                    city : document.getElementById('city').value,
+                    landmark : document.getElementById('landmark').value,
+                    pincode : document.getElementById('pincode').value,
+                    state : document.getElementById('state').value,
+                    country : document.getElementById('country').value,
+                    amount : document.getElementById('amount').value,
+                    currency : "INR"
+                })
+            });
+
+            const order = await response.json();
+            console.log("order creation completed");
+            return order;
+        }
+
+        document.getElementById('mysubmit').onclick = async function(e) {
+            e.preventDefault(); // extremely important - otherwise the page refreshes upon form submission and the razorpay checkout page does not open
+            const order = await createOrder();
+            console.log(order);
+
+            var options = {
+                "key": "rzp_test_6YLdpqvo6KxQuL",
+                "amount": order.amount,
+                "currency": order.currency,
+                "name": order.name,
+                "order_id": order.razorpay_order_id,
+                "receipt": order.email,
+                "callback_url":"http://localhost:9090/updatePayment",
+                "prefill": {
+                    "name": order.name,
+                    "email": order.email,
+                    "contact" : order.mobile,
+                },
+                "theme": {
+                    "color": "#4f33e2"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+                 await rzp1.open();
+                e.preventDefault();
+
+        }
+    </script>
+
+</form>
+
