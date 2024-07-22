@@ -116,11 +116,6 @@ public class OrderService {
             customer.setEmail(orderDto.getEmail());
             customer.setAddress(savedaddress);
             customer.setMobile(orderDto.getMobile());
-            Long latestCustomerId = customerRepo.getLatestCustomerId();
-            if(latestCustomerId!=null)
-            customer.setCustomer_id(customerRepo.getLatestCustomerId()+1l);
-            else
-            customer.setCustomer_id(1l);
         }
 
         Customer savedCustomer = customerRepo.save(customer); // if not saved it will saved

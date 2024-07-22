@@ -14,7 +14,7 @@ CREATE TABLE address
 CREATE TABLE customer
 (
     uuid         BINARY(16)   NOT NULL,
-    customer_id  BIGINT NULL,
+    customer_id  BIGINT  UNIQUE AUTO_INCREMENT,
     name         VARCHAR(255) NULL,
     mobile       VARCHAR(255) NULL,
     email        VARCHAR(255) NULL,
@@ -27,7 +27,7 @@ CREATE TABLE orders
     uuid                  BINARY(16)   NOT NULL,
     customer_uuid         BINARY(16)   NULL,
     payments_uuid         BINARY(16)   NULL,
-    created_at            datetime NULL,
+    created_at            datetime     NULL,
     razorpay_order_id     VARCHAR(255) NULL,
     razorpay_order_status VARCHAR(255) NULL,
     CONSTRAINT pk_orders PRIMARY KEY (uuid)
@@ -36,7 +36,7 @@ CREATE TABLE orders
 CREATE TABLE payments
 (
     uuid            BINARY(16)   NOT NULL,
-    amount          INT NULL,
+    amount          INT          NULL,
     currency        VARCHAR(255) NULL,
     razorpay_status VARCHAR(255) NULL,
     CONSTRAINT pk_payments PRIMARY KEY (uuid)
