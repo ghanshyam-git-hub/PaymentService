@@ -29,5 +29,7 @@ public class Orders extends BaseModel {
 
     String razorpay_order_id;
     String razorpay_order_status;
+    String razorpay_payment_id;
+    String razorpay_signature;
 
 }

@@ -51,6 +51,7 @@
         async function createOrder(){
             console.log('order creation started');
             const response = await fetch('http://localhost:9090/order' ,  {
+            //const response = await fetch('http://ghanshyam.ap-south-1.elasticbeanstalk.com/order' ,  {
                 method : 'POST',
                 headers : {
                     'Content-Type':'application/json'  // MIME standard to mention the backend that the data being sent is in json format
@@ -89,6 +90,7 @@
                 "order_id": order.razorpay_order_id,
                 "receipt": order.email,
                 "callback_url":"http://localhost:9090/updatePayment",  // after capturing the payment, at this url Razorpay makes a POST call to the callback URL with the razorpay_payment_id, razorpay_order_id and razorpay_signature in the response object of the successful payment.
+                //"callback_url":"http://ghanshyam.ap-south-1.elasticbeanstalk.com/updatePayment",
                 "prefill": { // if we dont fill this then on checkout page user has to fill in these details again which will be a bad experience
                     "name": order.name,
                     "email": order.email,

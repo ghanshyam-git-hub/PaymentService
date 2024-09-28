@@ -35,9 +35,12 @@ public class ViewController {
     }
 
     @PostMapping("/updatePayment")
-    public String updatePaymentStatus(@RequestParam Map<String,String> razorpay_payload){
+    public String updatePaymentStatus(@RequestParam Map<String,String> razorpay_payload) throws Exception {
         String razorpay_order_id = razorpay_payload.get("razorpay_order_id");
-        orderService.updateOrderStatus(razorpay_order_id);
+        String razorpay_payment_id = razorpay_payload.get("razorpay_payment_id");
+        String razorpay_signature = razorpay_payload.get("razorpay_signature");
+        orderService.updateOrderStatus(razorpay_order_id,razorpay_payment_id,razorpay_signature);
+
         return "thank-you";
     }
 

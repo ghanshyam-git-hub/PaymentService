@@ -3,6 +3,7 @@ package dev.ghanshyam.paymentservice_demo.services;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import com.razorpay.Utils;
 import dev.ghanshyam.paymentservice_demo.dtos.OrderDto;
 import dev.ghanshyam.paymentservice_demo.models.Address;
 import dev.ghanshyam.paymentservice_demo.models.Customer;
@@ -16,11 +17,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Getter
@@ -127,11 +133,29 @@ public class OrderService {
         return savedOrders;
     }
 
-    public void updateOrderStatus(String razorpay_order_id){
+    public void updateOrderStatus(String razorpay_order_id , String razorpay_payment_id, String razorpay_signature) throws Exception {
         Orders orders = orderRepo.getByRazorpay_order_id(razorpay_order_id);
-        orders.setRazorpay_order_status("Payment Completed");
-        orders.getPayments().setRazorpay_status("Payment Completed");
-        orderRepo.save(orders);
 
+        orders.setRazorpay_payment_id(razorpay_payment_id);
+        orders.setRazorpay_signature(razorpay_signature);
+
+        // Now crucial step of verifying the razorpay_signature
+        String secret = key_secret;
+
+        JSONObject options = new JSONObject();
+        options.put("razorpay_order_id", orders.getRazorpay_order_id()); // razorpay document says to use the razorpay_order_id which was saved by us before the payment which we saved in our server. Document says not to use the razorpay_order_id which is returned after the payment with the razorpay_payment_id
+        options.put("razorpay_payment_id", razorpay_payment_id);
+        options.put("razorpay_signature", razorpay_signature);
+
+        // Razorpay ane we both will verify the authenticity of transaction by this method
+        // Razorpay has generated the hash using the razorpay_order_id,razorpay_payment_id and the key secret which only we know amongst us
+        // So the payment_id received combined with our saved razorpay_id and keysecret if generates the same signature then that is a valid transaction
+        boolean status =  Utils.verifyPaymentSignature(options, secret);
+        if(status)
+            orders.setRazorpay_order_status("Payment Completed");
+        else
+            orders.setRazorpay_order_status("Signature didnt match");
+
+        orderRepo.save(orders);
     }
 }
